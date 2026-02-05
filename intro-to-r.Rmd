@@ -140,19 +140,13 @@ We can also take a look at the names of all the columns (variables) in this data
 
 ```
 
-There are over 200 variables in this dataset! We are most likely interested in just a subset of this data. We could use base R to extract the specific pieces of the data we are interested in. For instance, if we are interested in only extracting all the information from the student in the second row, we could use square brackets on the object `yrbs`. The first position is the row, and the second position after the comma is the column. Here we are extracting all the column values for the second row.
-
-```{r, solution=TRUE}
-
-```
-
 We can also print out the summary of every column, using the base R `summary` function, or we can specifically print out one column using `summary(yrbs$Sexual_identity)`. Use the summary function on the yrbs dataset in the code block below:
 
 ```{r, solution=TRUE}
 
 ```
 
-The summary function does not handle non-numerical data well. There is a dplyr function that is part of the tidyverse that does handle categories called `count`.
+The summary function does not handle non-numerical data well. With over 20,000 rows and 250 columns, we need better tools for exploring and manipulating this data efficiently. The tidyverse is a collection of R packages designed for data science that makes working with large datasets more intuitive
 
 # What is tidyverse?
 
@@ -233,7 +227,9 @@ We also see in this dataset from when we counted the sex column that there are "
 yrbs_filter <- filter(yrbs_select, !is.na(Sexual_identity)) 
 ```
 
-For future reference since we used the same filter function twice we could have written that in a single line of code like this: `yrbs_filter <- filter( yrbs_select, !is.na(Sexual_identity) & Sexual_identity != "Don t know what this means")`. Now, let's try using the filter function for the `Transgender` variable:
+For future reference since we used the same filter function twice we could have written that in a single line of code like this: `yrbs_filter <- filter( yrbs_select, !is.na(Sexual_identity) & Sexual_identity != "Don t know what this means")`.
+
+Now, let's try using the filter function for the `Transgender` variable to filter out `NA` values and `Don t know what this means` responses:
 
 ```{r}
 count(yrbs_filter, Transgender)
@@ -244,6 +240,8 @@ count(yrbs_filter, Transgender)
 ```
 
 ## 3. `mutate()` - Create New Variables
+
+Suppose we want to compare health outcomes between LGBTQ+ students and non-LGBTQ+ students. Currently, we have separate columns for `Sexual_identity` and `Transgender`, but we need a single variable that identifies whether a student belongs to either group. Let's create a new `LGBTQ+` column that combines these two variables.
 
 This means that we will be creating a new column with new information which is exactly what the `mutate` function is for. Using the `mutate` function on the `yrbs_filter` object, we can write a new column `LGBTQ+` that combines the responses of the `Sexual_identity` variable and the `Transgender` variable. We will use this function in combination with the `ifelse` function which returns a value depending on whether the condition of the test specified is `TRUE` or `FALSE`. By default, it will create this new column at the end of the table. If we want this column to be next to the `Transgender` column instead, we need to specify that using the `.after` option. We will be writing this new column back to the data object `yrbs_filter`.
 
@@ -258,7 +256,11 @@ yrbs_filter <- mutate(yrbs_filter,
 
 ## 4. `summarize()` - Create Summary Statistics
 
-What if we were interested in the prevalence of an outcome instead? We could use the `summarize` function to find the prevalence of students getting bullied at school in a new column called `prevalence`. We use the `mean` function to calculate the proportion of students that responded "Yes" to the question of "During the past 12 months, have you ever been bullied on school property?" We did not filter out missing values from this variable so we need to add `na.rm=TRUE` option. The `summarize` functions return NA unless we explicitly tell the function to skip missing values. Remember NAs are not zeros!
+What if we were interested in the prevalence of an outcome instead? We could use the `summarize()` function to find the prevalence of students getting bullied at school in a new column called `prevalence`.
+
+We use the `mean()` function to calculate the proportion of students that responded "Yes" to the question of "During the past 12 months, have you ever been bullied on school property?" The expression `bullied == "Yes"` creates a TRUE/FALSE result for each student, and when we take the mean of these logical values, R treats TRUE as 1 and FALSE as 0. This gives us the proportion of students who answered "Yes" - in other words, the prevalence.
+
+We did not filter out missing values from this variable, so we need to add the `na.rm = TRUE` option. The `summarize()` function returns `NA` unless we explicitly tell it to skip missing values. Remember: `NA`s are not zeros!
 
 The `summarize` function can be used to summarize data in many ways. How would you go about finding other options for the summarize function?
 
@@ -316,7 +318,15 @@ ggplot(yrbs_filter, aes(x = Sexual_identity)) +
   geom_bar()
 ```
 
-Notice how we use the `+` sign to add layers to our plot, similar to how we used `%>%` to pipe data through functions. The `aes()` function specifies our aesthetics - in this case, which variable goes on the x-axis. The `geom_bar()` automatically counts the number of observations in each category.
+Breaking down the code:
+
+1.  `ggplot(data = yrbs_filter, ...)` - This initializes the plot and tells ggplot which dataset to use
+
+2.  `aes(x = Sexual_identity)` - The `aes()` function specifies the "aesthetics" or visual mappings. Here we're saying that the `Sexual_identity` variable should be mapped to the x-axis
+
+3.  `geom_bar()` - This adds a layer to the plot specifying we want a bar chart. The `geom_bar()` function automatically counts how many observations fall into each category of the x variable
+
+4.  The `+` symbol - In `ggplot2`, we build plots by adding layers together using `+`, similar to how we used `%>%` to pipe data through functions.
 
 ### Improving Our Plot
 
@@ -338,7 +348,11 @@ The `element_text` option can be used to customize both the `angle` based on deg
 
 ## Visualizing Group Comparisons
 
-Let's visualize the bullying prevalence we calculated earlier between LGBTQ+ and non-LGBTQ+ students. First, we'll create our summary data and save it to an object we can plot.
+Let's visualize the bullying prevalence we calculated earlier between LGBTQ+ and non-LGBTQ+ students.
+
+When we want to visualize summary statistics (rather than the raw data), we need to first calculate those summaries and save them to a new object. This is different from our earlier bar plot, which used the original `yrbs_filter` data and let `geom_bar()` do the counting automatically. For this plot, we're providing pre-calculated percentages.
+
+*Remember: We use `<-` to assign results to a named object. This lets us save our work and reference it later. Choose object names that are descriptive - `bullied_prev` tells us exactly what this data contains.*
 
 ```{r}
 bullying_prev <- yrbs_filter %>% 
@@ -361,7 +375,11 @@ ggplot(bullying_prev, aes(x = LGBTQ, y = prevalence)) +
   theme_minimal()
 ```
 
-We notice that LGBTQ+ students have almost twice as much prevalence in experiencing bullying at school. We can also look at bullying prevalence across different demographic groups. Let's examine how it varies by race/ethnicity and LGBTQ+ status together. We'll use color to represent the LGBTQ+ grouping.
+We notice that LGBTQ+ students have almost twice as much prevalence in experiencing bullying at school. We can also look at bullying prevalence across different demographic groups. Let's examine how it varies by race/ethnicity and LGBTQ+ identity together. 
+
+**Step 1: Create the summary data** 
+
+First, we'll calculate the bullying prevalence for each combination of race/ethnicity and LGBTQ+ identity. 
 
 ```{r}
 race_bullying <- yrbs_filter %>%
@@ -369,7 +387,19 @@ race_bullying <- yrbs_filter %>%
   group_by(race, LGBTQ) %>%
   summarize(prevalence = mean(bullied == "Yes", na.rm = TRUE),
             .groups = "drop")
+```
 
+Breaking down the code: 
+
+- `filter(!is.na(race))`: Remove any rows where race is missing (`NA`). The `!` means "not", so we're keeping rows where race is **not** missing.
+- `group_by(race, LGBTQ)`: Group by two variables at once. This creates a separate group for each unique combination (e.g., "Asian, LGBTQ+", "Asian, non-LGBTQ+", "Black, LGBTQ+", etc.)
+- `.groups = "drop"`: This option tells R to remove the grouping structure after summarizing. It's good practice to avoid unexpected behavior in future operations.
+
+**Step 2: Create the visualization**
+
+Now, we'll use the summary data to create a grouped bar plot. 
+
+```{r}
 ggplot(race_bullying, aes(x = race, y = prevalence, fill = LGBTQ)) +
   geom_col(position = "dodge") +
   labs(
@@ -413,12 +443,16 @@ overall_prev <- yrbs_filter %>%
 overall_prev
 ```
 
-Now we can visualize this prevalence ratio. We'll add a horizontal line at PR = 1 to mark our reference group using `geom_hline()`.
+Now we can visualize this prevalence ratio. Our `overall_prev` table contains prevalence ratios for both groups (LGBTQ+ and non-LGBTQ+). However, the non-LGBTQ+ group is our reference group, so its PR is always 1.00 (a group compared to itself equals 1). We only need to plot the LGBTQ+ group's prevalence ratio to show the comparison. Filtering keeps just the row where `LGBTQ == "LGBTQ+"`, which contains the meaningful prevalence ratio we want to visualize.
 
 ```{r}
 plot_df <- overall_prev %>%
   filter(LGBTQ == "LGBTQ+")
+```
 
+We can now use the `plot_df` object to create our visualization. We'll add a horizontal line at PR = 1 to mark our reference group using `geom_hline()`. 
+
+```{r}
 ggplot(plot_df, aes(x = LGBTQ, y = pr_vs_nonLGBT)) +
   geom_col(fill = "skyblue") +
   geom_hline(yintercept = 1, linetype = "dashed") +
@@ -431,11 +465,11 @@ ggplot(plot_df, aes(x = LGBTQ, y = pr_vs_nonLGBT)) +
   theme_minimal()
 ```
 
-The dashed line at PR = 1 represents the reference group (Heterosexual/Not sure students). Values above this line indicate higher prevalence of bullying compared to the reference group.
+The dashed line at PR = 1 represents the reference group (Heterosexual/Not sure students). Values above this line indicate higher prevalence of bullying compared to the reference group. We can see that LGBTQ+ students generally had a higher prevalence in bullying. 
 
 ## Prevalence Ratios Across Demographics
 
-Now we can extend this analysis to see if the relationship between LGBTQ+ status and bullying varies across different demographic groups. Let's look at age first.
+Now we can extend this analysis to see if the relationship between LGBTQ+ identity and bullying varies across different demographic groups. Let's look at age first.
 
 ### By Age
 
