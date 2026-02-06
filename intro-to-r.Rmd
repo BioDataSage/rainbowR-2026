@@ -243,13 +243,15 @@ count(yrbs_filter, Transgender)
 
 Suppose we want to compare health outcomes between LGBTQ+ students and non-LGBTQ+ students. Currently, we have separate columns for `Sexual_identity` and `Transgender`, but we need a single variable that identifies whether a student belongs to either group. Let's create a new `LGBTQ+` column that combines these two variables.
 
+In this analysis, youth who responded `Not sure` to sexual identity were grouped with LGBTQ+ respondents rather than with heterosexual respondents. This decision was made because grouping 'not sure' respondents with heterosexual youth would risk masking important health disparities and potentially misclassifying youth who are in earlier stages of LGBTQ+ identity development. This approach aligns with a harm-reduction perspective that recognizes the vulnerability of questioning youth and ensures that analyses capture the full spectrum of sexual minority youth who may benefit from targeted interventions. However, we acknowledge this represents a limitation, as the `Not sure` group is heterogeneous and may include some youth who will ultimately identify as heterosexual.
+
 This means that we will be creating a new column with new information which is exactly what the `mutate` function is for. Using the `mutate` function on the `yrbs_filter` object, we can write a new column `LGBTQ+` that combines the responses of the `Sexual_identity` variable and the `Transgender` variable. We will use this function in combination with the `ifelse` function which returns a value depending on whether the condition of the test specified is `TRUE` or `FALSE`. By default, it will create this new column at the end of the table. If we want this column to be next to the `Transgender` column instead, we need to specify that using the `.after` option. We will be writing this new column back to the data object `yrbs_filter`.
 
 ```{r}
 # | Format of ifelse() function: ifelse(test, yes, no) 
 yrbs_filter <- mutate(yrbs_filter,
                       LGBTQ = ifelse(Transgender != "Yes, I am transgender" & 
-                                       (Sexual_identity %in% c("Heterosexual (straight)", "Not sure")),
+                                       (Sexual_identity %in% c("Heterosexual (straight)")),
                              "Heterosexual/Not sure", "LGBTQ+"))
 
 ```
@@ -375,11 +377,11 @@ ggplot(bullying_prev, aes(x = LGBTQ, y = prevalence)) +
   theme_minimal()
 ```
 
-We notice that LGBTQ+ students have almost twice as much prevalence in experiencing bullying at school. We can also look at bullying prevalence across different demographic groups. Let's examine how it varies by race/ethnicity and LGBTQ+ identity together. 
+We notice that LGBTQ+ students have almost twice as much prevalence in experiencing bullying at school. We can also look at bullying prevalence across different demographic groups. Let's examine how it varies by race/ethnicity and LGBTQ+ identity together.
 
-**Step 1: Create the summary data** 
+**Step 1: Create the summary data**
 
-First, we'll calculate the bullying prevalence for each combination of race/ethnicity and LGBTQ+ identity. 
+First, we'll calculate the bullying prevalence for each combination of race/ethnicity and LGBTQ+ identity.
 
 ```{r}
 race_bullying <- yrbs_filter %>%
@@ -389,15 +391,15 @@ race_bullying <- yrbs_filter %>%
             .groups = "drop")
 ```
 
-Breaking down the code: 
+Breaking down the code:
 
-- `filter(!is.na(race))`: Remove any rows where race is missing (`NA`). The `!` means "not", so we're keeping rows where race is **not** missing.
-- `group_by(race, LGBTQ)`: Group by two variables at once. This creates a separate group for each unique combination (e.g., "Asian, LGBTQ+", "Asian, non-LGBTQ+", "Black, LGBTQ+", etc.)
-- `.groups = "drop"`: This option tells R to remove the grouping structure after summarizing. It's good practice to avoid unexpected behavior in future operations.
+-   `filter(!is.na(race))`: Remove any rows where race is missing (`NA`). The `!` means "not", so we're keeping rows where race is **not** missing.
+-   `group_by(race, LGBTQ)`: Group by two variables at once. This creates a separate group for each unique combination (e.g., "Asian, LGBTQ+", "Asian, non-LGBTQ+", "Black, LGBTQ+", etc.)
+-   `.groups = "drop"`: This option tells R to remove the grouping structure after summarizing. It's good practice to avoid unexpected behavior in future operations.
 
 **Step 2: Create the visualization**
 
-Now, we'll use the summary data to create a grouped bar plot. 
+Now, we'll use the summary data to create a grouped bar plot.
 
 ```{r}
 ggplot(race_bullying, aes(x = race, y = prevalence, fill = LGBTQ)) +
@@ -450,7 +452,7 @@ plot_df <- overall_prev %>%
   filter(LGBTQ == "LGBTQ+")
 ```
 
-We can now use the `plot_df` object to create our visualization. We'll add a horizontal line at PR = 1 to mark our reference group using `geom_hline()`. 
+We can now use the `plot_df` object to create our visualization. We'll add a horizontal line at PR = 1 to mark our reference group using `geom_hline()`.
 
 ```{r}
 ggplot(plot_df, aes(x = LGBTQ, y = pr_vs_nonLGBT)) +
@@ -465,7 +467,7 @@ ggplot(plot_df, aes(x = LGBTQ, y = pr_vs_nonLGBT)) +
   theme_minimal()
 ```
 
-The dashed line at PR = 1 represents the reference group (Heterosexual/Not sure students). Values above this line indicate higher prevalence of bullying compared to the reference group. We can see that LGBTQ+ students generally had a higher prevalence in bullying. 
+The dashed line at PR = 1 represents the reference group (Heterosexual/Not sure students). Values above this line indicate higher prevalence of bullying compared to the reference group. We can see that LGBTQ+ students generally had a higher prevalence in bullying.
 
 ## Prevalence Ratios Across Demographics
 
