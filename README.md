@@ -1,1 +1,4 @@
-# rainbowR-2026
+# rainbowR 2026: Introduction to R Workshop 
+
+This hands-on workshop offers a supportive introduction to programming in R for participants with little to no prior coding experience. Participants will begin by learning basic programming concepts and becoming comfortable working in the RStudio environment. The workshop then introduces the tidyverse, a collection of R packages commonly used for data science, and guides learners through applying these tools to explore and visualize data. Using the CDC’s Youth Risk Behavior Surveillance data, participants will examine LGBTQ+ health-related questions while practicing core data skills. By the end of the workshop, participants will be able to import, clean, and manipulate data in R to create simple visualizations. No prior programming experience is required; Posit Cloud workspaces will be provided, so attendees do not need to install R or RStudio on their local machines.
+
