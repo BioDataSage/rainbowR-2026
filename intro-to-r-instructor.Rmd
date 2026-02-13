@@ -356,7 +356,7 @@ When we want to visualize summary statistics (rather than the raw data), we need
 
 *Remember: We use `<-` to assign results to a named object. This lets us save our work and reference it later. Choose object names that are descriptive - `bullied_prev` tells us exactly what this data contains.*
 
-```{r}
+```{r, solution = TRUE}
 bullying_prev <- yrbs_filter %>% 
   group_by(LGBTQ) %>% 
   summarize(prevalence = mean(bullied == "Yes", na.rm = TRUE))
@@ -366,7 +366,7 @@ bullying_prev
 
 Now we can create a bar plot showing this comparison. Notice that we're now specifying both x and y in our aesthetics, and we're using `geom_col()` instead of `geom_bar()` because we already have the y values calculated.
 
-```{r}
+```{r, solution = TRUE}
 ggplot(bullying_prev, aes(x = LGBTQ, y = prevalence)) +
   geom_col(fill = "skyblue") +
   labs(
