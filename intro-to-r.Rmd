@@ -146,7 +146,7 @@ We can also print out the summary of every column, using the base R `summary` fu
 ### Your code here
 ```
 
-The summary function does not handle non-numerical data well. With over 20,000 rows and 250 columns, we need better tools for exploring and manipulating this data efficiently. The tidyverse is a collection of R packages designed for data science that makes working with large datasets more intuitive
+The summary function does not handle non-numerical data well. With over 20,000 rows and 250 columns, we need better tools for exploring and manipulating this data efficiently. The tidyverse is a collection of R packages designed for data science that makes working with large datasets more intuitive.
 
 # What is tidyverse?
 
@@ -248,7 +248,7 @@ This means that we will be creating a new column with new information which is e
 yrbs_filter <- mutate(yrbs_filter,
                       LGBTQ = ifelse(Transgender != "Yes, I am transgender" & 
                                        (Sexual_identity %in% c("Heterosexual (straight)")),
-                             "Heterosexual/Not sure", "LGBTQ+"))
+                             "Heterosexual", "LGBTQ+"))
 
 ```
 
@@ -385,11 +385,9 @@ Breaking down the code:
 
 Now, let's use the summary data to create a grouped bar plot. Hint: Using the `position = "dodge"` argument inside `geom_col()` places the bars side-by-side rather than stacking them, making it easier to compare groups.
 
-
 ```{r, solution=TRUE}
 ### Your code here
 ```
-
 
 ### Understanding Prevalence Ratios
 
@@ -403,7 +401,7 @@ A prevalence ratio (PR) compares the prevalence in one group to the prevalence i
 
 For example, if LGBTQ+ students have a bullying prevalence of 30% and heterosexual students have 15%, the PR would be 30/15 = 2.0, meaning LGBTQ+ students are twice as likely to be bullied.
 
-Let's calculate and visualize these prevalence ratios, using heterosexual/not sure students as our reference group (PR = 1).
+Let's calculate and visualize these prevalence ratios, using heterosexual students as our reference group (PR = 1).
 
 ```{r}
 overall_prev <- yrbs_filter %>%
@@ -414,14 +412,13 @@ overall_prev <- yrbs_filter %>%
     .groups = "drop"
   ) %>%
   mutate(
-    pr_vs_nonLGBT = prevalence / prevalence[LGBTQ == "Heterosexual/Not sure"]
+    pr_vs_nonLGBT = prevalence / prevalence[LGBTQ == "Heterosexual"]
   )
 
 overall_prev
 ```
 
-Now we can visualize this prevalence ratio. Our `overall_prev` table contains prevalence ratios for both groups (LGBTQ+ and non-LGBTQ+). However, the non-LGBTQ+ group is our reference group, so its PR is always 1.00 (a group compared to itself equals 1). We only need to plot the LGBTQ+ group's prevalence ratio to show the comparison. Filtering keeps just the row where `LGBTQ == "LGBTQ+"`, which contains the meaningful prevalence ratio we want to visualize. Let's attempt to filter out just this group: 
-
+Now we can visualize this prevalence ratio. Our `overall_prev` table contains prevalence ratios for both groups (LGBTQ+ and non-LGBTQ+). However, the non-LGBTQ+ group is our reference group, so its PR is always 1.00 (a group compared to itself equals 1). We only need to plot the LGBTQ+ group's prevalence ratio to show the comparison. Filtering keeps just the row where `LGBTQ == "LGBTQ+"`, which contains the meaningful prevalence ratio we want to visualize. Let's attempt to filter out just this group:
 
 ```{r, solution=TRUE}
 ### Your code here
