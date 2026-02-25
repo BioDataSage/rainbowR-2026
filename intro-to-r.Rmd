@@ -432,14 +432,14 @@ ggplot(plot_df, aes(x = LGBTQ, y = pr_vs_nonLGBT)) +
   geom_hline(yintercept = 1, linetype = "dashed") +
   labs(
     title = "Prevalence Ratio of Being Bullied at School",
-    subtitle = "LGBTQ+ students compared to Heterosexual/Not sure students",
+    subtitle = "LGBTQ+ students compared to Heterosexual students",
     x = "",
     y = "Prevalence Ratio (PR)"
   ) +
   theme_minimal()
 ```
 
-The dashed line at PR = 1 represents the reference group (Heterosexual/Not sure students). Values above this line indicate higher prevalence of bullying compared to the reference group. We can see that LGBTQ+ students generally had a higher prevalence in bullying.
+The dashed line at PR = 1 represents the reference group (Heterosexual students). Values above this line indicate higher prevalence of bullying compared to the reference group. We can see that LGBTQ+ students generally had a higher prevalence in bullying.
 
 ## Prevalence Ratios Across Demographics
 
@@ -458,7 +458,7 @@ age_prev <- yrbs_filter %>%
   ) %>%
   group_by(age) %>%
   mutate(
-    prev_nonLGBT = prevalence[LGBTQ == "Heterosexual/Not sure"],
+    prev_nonLGBT = prevalence[LGBTQ == "Heterosexual"],
     pr_vs_nonLGBT = prevalence / prev_nonLGBT
   ) %>%
   ungroup()
@@ -472,7 +472,7 @@ ggplot(plot_df, aes(x = age, y = pr_vs_nonLGBT)) +
   geom_hline(yintercept = 1, linetype = "dashed") +
   labs(
     title = "Prevalence Ratio of Being Bullied at School",
-    subtitle = "LGBTQ+ students compared to Heterosexual/Not sure students, within each age group",
+    subtitle = "LGBTQ+ students compared to Heterosexual students, within each age group",
     x = "Age",
     y = "Prevalence Ratio (PR)"
   ) +
@@ -498,7 +498,7 @@ race_prev <- yrbs_filter %>%
   ) %>%
   group_by(race) %>%
   mutate(
-    prev_nonLGBT = prevalence[LGBTQ == "Heterosexual/Not sure"],
+    prev_nonLGBT = prevalence[LGBTQ == "Heterosexual"],
     pr_vs_nonLGBT = prevalence / prev_nonLGBT
   ) %>%
   ungroup()
@@ -512,7 +512,7 @@ ggplot(plot_df, aes(x = reorder(race, pr_vs_nonLGBT), y = pr_vs_nonLGBT)) +
   geom_hline(yintercept = 1, linetype = "dashed") +
   labs(
     title = "Prevalence Ratio of Being Bullied at School",
-    subtitle = "LGBTQ+ students compared to Heterosexual/Not sure students, within each race group",
+    subtitle = "LGBTQ+ students compared to Heterosexual students, within each race group",
     x = "Race/Ethnicity",
     y = "Prevalence Ratio (PR)"
   ) +
@@ -522,7 +522,7 @@ ggplot(plot_df, aes(x = reorder(race, pr_vs_nonLGBT), y = pr_vs_nonLGBT)) +
 
 The `reorder()` function sorts the bars by their PR values, making it easier to see which groups have the highest disparities. Now that we have done some exploring, what story does our data tell? There are a couple of things that stand out in these final plots:
 
--   In general, it looks like LGBTQ+ students experience higher rates of bullying compared to heterosexual/not sure students across all demographic groups
+-   In general, it looks like LGBTQ+ students experience higher rates of bullying compared to heterosexual students across all demographic groups
 -   The disparity (as measured by prevalence ratio) appears to vary by age, and race/ethnicity.
 
 # Key Takeaways
